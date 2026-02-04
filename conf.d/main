@@ -1,2 +1,35 @@
 #!/bin/sh -ex
-echo "do nothing - core requires no post-package configuration commands"
+
+apt update -y
+
+ALLOWED_HOSTS=*                 # Space separated list of hosts allowed
+NAUTOBOT_ROOT=/opt/nautobot     # Nautobot user root directory
+
+NAUTOBOT_DB_HOST=localhost
+NAUTOBOT_DB_NAME=nautobot
+NAUTOBOT_DB_USER=nautobot
+NAUTOBOT_DB_PASSWORD=nautobot
+
+# Other Configurations
+INSTALLATION_METRICS_ENABLED=false
+
+
+adduser \
+    --system \
+    --shell /bin/bash \
+    --home /opt/nautobot \
+    --uid 1000 \
+    nautobot
+
+su - nautobot -c "python3 -m venv /opt/nautobot"
+su - nautobot -c "pip3 install --upgrade pip wheel"
+su - nautobot -c "pip3 install --no-binary=pyuwsgi nautobot"
+
+echo "export NAUTOBOT_ROOT=/opt/nautobot" | tee -a ~nautobot/.bashrc
+
+
+# Create SSL Certificate
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout /etc/ssl/private/nautobot.key \
+  -out /etc/ssl/certs/nautobot.crt
+
