@@ -7,4 +7,4 @@ python3-venv
 python3-dev
 redis-server
 
-#include $(FAB_PATH)/common/mk/turnkey.mk
+include $(FAB_PATH)/common/mk/turnkey.mk
